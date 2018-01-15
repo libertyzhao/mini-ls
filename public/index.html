@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>mini-ls</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <link rel="icon" href="./favicon.ico">
+  <link rel="stylesheet" href="./static/style.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="./static/bundle.js"></script>
+  <script>
+
+    Pawn.add([
+      {"url":"https://m.baidu.com/se/static/js/service/index_polymer_fbd2fce.js","key":'kuayujs'},//跨域js
+      {"url":"https://gss0.bdstatic.com/5bd1bjqh_Q23odCf/static/wiseindex/js/package/newsActivity_f6d3b0f.js","key":"bukuayujs"}//不跨域js
+    ]).catch((e)=>{
+      console.log(e)
+    })
+  </script>
+</body>
+</html>
