@@ -165,4 +165,4 @@ Object.defineProperty(Pawn, "ob", {//观察，有变动说明有资源处理完�
 	}
 });
 
-export default Pawn;
+export {Pawn} ;
