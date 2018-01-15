@@ -2,7 +2,7 @@ import getPlugin from './get-plugin';
 import { name } from '../package.json';
 
 const entry = 'src/main/main.js';
-const moduleName = name.replace(/-(\w)/g, ($, $1) => $1.toUpperCase());
+const moduleName = 'Pawn';
 
 export default [{
   input: entry,

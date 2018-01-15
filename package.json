@@ -1,6 +1,6 @@
 {
   "name": "mini-ls",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "一个将js和css缓存到本地localstorage的小型工具",
   "main": "lib/index.min.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "author": "liberty__ <376968795@qq.com>",
   "license": "MIT",
   "dependencies": {
-    "mini-ls": "^0.0.2"
+    "mini-ls": "^0.0.6"
   },
   "devDependencies": {
     "autoprefixer": "^7.2.3",
