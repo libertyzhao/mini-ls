@@ -88,7 +88,7 @@ var LsManger = {
 };
 
 var Pawn = {
-  ob: 0,//观察者触发依赖收集
+  ob: false,//观察者触发依赖收集
   target: 0,//当前数据id
 	locals: {},//数据集合
 	max:0,
@@ -124,7 +124,7 @@ var util = {
 	ext: { js: "script", css: "style" },
 	extOut:{js:'script',css:'link'},
 	link:{js:'src',css:'href'},
-	_createElement(local,type = 'in') {//创建element的过程
+	_createElement(local) {//创建element的过程
 		var element = null;
 
 		if(local.content){
@@ -146,17 +146,44 @@ var util = {
   },
   _appendToPage(fragment) {
     dom.appendChild(fragment);
+  },
+}
+
+var depManage = {//依赖处理，主要用来处理外链js和内联js的依赖顺序问，内联js上html就执行，外链js还要等待js完全下载。
+  depArr:[],
+  depStatus:false,
+  _isDep:function(element,id){
+    if(element.src){//说明降级过，引入外链js，需要处理外链js和内联js的依赖顺序问题
+      depManage.depStatus = true;
+      depManage.depArr.push(element);
+    }else if(depManage.depStatus){//依赖状态发生改变，开始处理依赖
+      var depArr = depManage.depArr;
+      depArr.push(Pawn.locals[id]);//拿到外链后面的那个内联js
+      Pawn.locals[id] = null;//置空
+      depArr[depArr.length-2].onload = function(){//数组内连贯的最后一个外链js绑定onload，load之后开始打入内联js
+        Pawn.locals[id] = depArr[depArr.length-1];//置空之后，还原
+        depManage.depArr = [];//重新初始化数据
+        depManage.depStatus = false;//重新初始化数据
+        Pawn.ob = true;//依赖处理
+      }
+      return true;
+    }
+    return false;
   }
 }
 
 Object.defineProperty(Pawn, "ob", {//观察，有变动说明有资源处理完成，根据相应的依赖顺序，来按顺序把js插入到html中
 	set: function(key) {
 		var fragment = document.createDocumentFragment();
-		var size = Object.keys(Pawn.locals).length;
+		var size = Object.keys(Pawn.locals).length, depStatus;
 		for (var i = Pawn.target; i < Pawn.max; i++) {
 			if (Pawn.locals[i]) {//从前往后，先处理第一个资源，依次进行
-				Pawn.target++;
-				fragment.appendChild(util._createElement(Pawn.locals[i]));
+        var element = util._createElement(Pawn.locals[i]);
+        if(depManage._isDep(element,i)){//如果有外链和内联同时存在的情况，就break
+          break;
+        }
+        fragment.appendChild(element);
+        Pawn.target++;
 			}else {//如果第二第三个资源下载完成，第一个没下载完成，则退出，因为第一个资源默认为第二第三个依赖，script在第二个和第三个之上
 				break;
 			}
