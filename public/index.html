@@ -11,12 +11,17 @@
   <div id="root"></div>
   <script src="./static/bundle.js"></script>
   <script>
+    window.onerror = function(a,b,c,d,e){
+      console.log(a,b,c,d,e);
+    }
 
     Pawn.add([
       {"url":"https://m.baidu.com/se/static/js/service/index_polymer_fbd2fce.js","key":'kuayujs'},//跨域js
-      {"url":"https://gss0.bdstatic.com/5bd1bjqh_Q23odCf/static/wiseindex/js/package/newsActivity_f6d3b0f.js","key":"bukuayujs"}//不跨域js
+      {"url":"https://m.baidu.com/se/static/js/service/index_polymer_fbd1231232fce.js","key":"bukuayujs"}//不跨域js
     ]).catch((e)=>{
-      console.log(e)
+      setTimeout(() => {
+        throw e;
+      }, 0);
     })
   </script>
 </body>
