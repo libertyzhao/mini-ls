@@ -136,8 +136,12 @@ var util = {
 			if(local.ext == 'css'){
 				element.rel="stylesheet"
 			}
-		}
-    element.defer = true;
+    }
+    if(local.ext == 'js'){
+      element.crossorigin = true;
+      element.async = false;
+      element.defer = true;
+    }
     return element;
   },
   _appendToPage(fragment) {
