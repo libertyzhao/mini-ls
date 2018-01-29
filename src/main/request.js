@@ -14,7 +14,7 @@ function createXHR() {
 function request(opts) {
   var url = opts.url,
     method = "GET",
-    timeout = opts.timeout || 10000;
+    timeout = opts.timeout || 7000;
   var xhr = createXHR();
 	var promise = new Promise((rs,rj)=>{
 		xhr.onreadystatechange = function() {

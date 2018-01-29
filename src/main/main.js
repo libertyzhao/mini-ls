@@ -4,6 +4,8 @@ var storage = window.localStorage;
 
 var keyName = "forchange-";
 
+var errMsg = '';//用来告知开发者使用了换源cdn之后，是否解决了cdn下载失败的问题
+
 var dom = document.querySelector("head");
 
 function getSpace() { //爆空间的处理方案
@@ -26,9 +28,10 @@ function getSpace() { //爆空间的处理方案
 }
 
 function formateLocalObj(item, content) { //数据格式处理
-  var match = item.url.match(/\.(\w+)(\?.*)?$/i);
+  var url = typeof item.url == 'string' ? item.url : item.url[0] ;
+  var match = url.match(/\.(\w+)(\?.*)?$/i);
   return {
-    url: item.url,
+    url: url,
     content: content,
     ext: match ? match[1] : match
   };
@@ -36,10 +39,10 @@ function formateLocalObj(item, content) { //数据格式处理
 
 var LsManger = {
   getSource(item) { //获取资源
-		var times = 1;//资源下载失败，默认重试次数（其实很大原因下载失败是因为跨域，所以重试没啥意义，感觉浪费资源和时间）
+		var times = 3;//资源下载失败，默认重试次数（更正：下载失败可能就是cdn问题，打算切多路）
     var promise = new Promise((rs, rj) => {
       var local = this._getLocal(item.key);//从本地存储拿数据，没有则走下载逻辑，有就直接返回
-      if (local && local.url == item.url) {//有本地存储，直接返回
+      if (local && (local.url == item.url || local.url == item.url[0] )) {//有本地存储，直接返回
         rs(local);
       } else {//没有本地存储，去下载
         this._fetchSource(item,times).then(local=>{
@@ -53,8 +56,11 @@ var LsManger = {
     });
     return promise;
   },
-  _fetchSource(item,times = 1) {//拿数据，用到request
-    return request({ url: item.url }).then(res => {
+  _fetchSource(item,times = 1,err) {//拿数据，用到request
+    var url = this._getSourceUrl(item);
+    this._indexAdd(item);
+    return request({ url: url }).then(res => {
+      (!errMsg && err) ? errMsg = '换源下载成功:'+url : ''; 
       var local = formateLocalObj(item, res.content);
       setTimeout(() => {
         this._setLocal(item.key, local);//延迟将资源存入本地，让浏览器能够留出性能处理其他事情
@@ -62,12 +68,27 @@ var LsManger = {
 			return local;
     }).catch(e => {
 			if (times < 1) {//下载失败的重试逻辑
-				throw new Error(e+' ， 已经重试过1次，文件下载异常：'+item.url);
+				throw new Error(e+' ， 已经重试过3次，文件下载异常：'+url);
 				return;
 			}
-			return this._fetchSource(item, --times);
+			return this._fetchSource(item, --times, true);
 		});
-	},
+  },
+  _getSourceUrl(item){//切多路资源下载地址，因为资源有可能下载失败
+    var url = '';
+    item.index = item.index || 0;
+    if(typeof item.url == 'string'){
+      url = item.url;
+    }else{
+      url = item.url[item.index];
+    }
+    return url;
+  },
+  _indexAdd(item){
+    if(item.index < item.url.length - 1){
+      item.index++;
+    }
+  },
   _getLocal(key) {
     var obj = null;
     try {
@@ -92,7 +113,8 @@ var Pawn = {
   target: 0,//当前数据id
 	locals: {},//数据集合
 	max:0,
-	hash:{},//key对应的数据id
+  hash:{},//key对应的数据id
+  success:null,//成功处理
 	error:null,//异常处理的函数
 	_setMax(options) {//存在异步情况,上一波add的promise还没执行完毕，下一波又来了，所以需要累加
     this.max += options.length;
@@ -106,6 +128,7 @@ var Pawn = {
           .then(local => {
 						this.hash[item.key] = idx;//将资源的key和idx对应，便于某些情况用key也能找到对应的资源
             this.locals[idx] = local;//将idx作为资源对应的id，因为是下标，根据这个顺序来处理依赖关系，idx小的靠上
+            errMsg && (this.error = ()=>{rj(errMsg)});//成功处理，待所有的资源文件加载完了，抛出给上层，预留接口给他们处理，主要用于告知用户换源是否成功
             this.ob = true;//开始根据依赖关系将对应的js打入html
           })
           .catch(e => {//报异常，可能是js跨域或者其他问题，这里统一对单个文件进行降级处理，不影响其他js，最大程度利用缓存
@@ -115,7 +138,7 @@ var Pawn = {
 						this.ob = true;//开始依赖处理
           });
 			});
-			this._setMax(options);//累加
+      this._setMax(options);//累加
     });
 	},
 };
@@ -189,9 +212,12 @@ Object.defineProperty(Pawn, "ob", {//观察，有变动说明有资源处理完�
 			}
 		}
 		util._appendToPage(fragment);//将代码片段打入html
-		if (size == Pawn.max && typeof Pawn.error == 'function' ) {//如果有异常，则要处理异常逻辑
-			Pawn.error();
-			Pawn.error = null;
+    if (size == Pawn.max) {//如果有异常，则要处理异常逻辑
+      if(typeof Pawn.error == 'function'){
+        Pawn.error();
+        Pawn.error = null;
+        errMsg = '';
+      }
 		}
 	}
 });
