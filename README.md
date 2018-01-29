@@ -1,3 +1,5 @@
+喜欢的话请到我的github点赞，感谢：https://github.com/liberties
+
 # mini-ls
 
 一个js和css的本地localstorage的管理工具
