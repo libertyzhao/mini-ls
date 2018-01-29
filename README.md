@@ -20,14 +20,20 @@
 - 2、自动降级处理，如果js或者css下载失败或者跨域等，会自动重试1次，若还失败，则直接通过往页面打入script或者link标签来降级处理。
 - 3、异常的抛出，用了promise的语法，可以直接在末尾catch，来处理自己想要的异常逻辑。不支持promise的浏览器可能gg，我的是移动端微信开发，所以还不用考虑这个，可以配合我的webpack插件来直接连接我这个库和webpack插件，并有自动的降级方案。
 - 4、爆localStorage空间的处理方案
+- 5、近期更新了对于多cdn换源的处理。（在公司发现有部分js会下载失败，所以尝试多cdn，阿里云cdn下载失败就切换七牛cdn,依次类推）
 
 ```javascript
 
 Pawn.add([
- {"url":"https://m.baidu.com/se/static/js/service/index_polymer_fbd2fce.js","key":'kuayujs'},//跨域js,发现跨域，自动降级jsonp处理
- {"url":"https://gss0.bdstatic.com/5bd1bjqh_Q23odCf/static/wiseindex/js/package/newsActivity_f6d3b0f.js","key":"bukuayujs"}//不跨域js，走本地存储
+      //添加url为数组，即增加多cdn，多路切换，因为存在阿里cdn下载失败时，可以直接切换七牛cdn下载，需要注意我只会重试3次下载。
+      {"url":['https://acdnbase.com/se/static/js/servi.js',"https://cdn.bootcss.com/jquery/3.3.1/jquery.js"],"key":'kuayujs'},//跨域js和不跨域的jquery
+      {"url":"https://cdn.bootcss.com/jquery/3.3.1/jquery.js","key":"bukuayujs"}//跨域js(可自行替换跨域js和不跨域js比对)
     ]).catch((e)=>{
-      console.log(e)
+      if(e){
+        setTimeout(() => {
+          throw e;
+        }, 0);
+      }
     })
 ```
 
