@@ -1,6 +1,6 @@
 {
   "name": "mini-ls",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "一个将js和css缓存到本地localstorage的小型工具",
   "main": "lib/index.min.js",
   "scripts": {
