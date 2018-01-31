@@ -128,7 +128,7 @@ var Pawn = {
           .then(local => {
 						this.hash[item.key] = idx;//将资源的key和idx对应，便于某些情况用key也能找到对应的资源
             this.locals[idx] = local;//将idx作为资源对应的id，因为是下标，根据这个顺序来处理依赖关系，idx小的靠上
-            errMsg && (this.error = ()=>{rj(errMsg)});//成功处理，待所有的资源文件加载完了，抛出给上层，预留接口给他们处理，主要用于告知用户换源是否成功
+            errMsg && (this.error = ()=>{rj(errMsg)});//成功处理，主要用于告知用户换源是否成功
             this.ob = true;//开始根据依赖关系将对应的js打入html
           })
           .catch(e => {//报异常，可能是js跨域或者其他问题，这里统一对单个文件进行降级处理，不影响其他js，最大程度利用缓存
