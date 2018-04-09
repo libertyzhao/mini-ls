@@ -1,8 +1,9 @@
 {
   "name": "mini-ls",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "一个将js和css缓存到本地localstorage的小型工具",
   "main": "lib/index.min.js",
+  "module": "lib/index.min.js",
   "scripts": {
     "dev": "./node_modules/.bin/rollup -c build/rollup.demo.config.js --watch",
     "demo": "./node_modules/.bin/rimraf public/static && NODE_ENV=production ./node_modules/.bin/rollup -c build/rollup.demo.config.js",

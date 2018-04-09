@@ -8,9 +8,8 @@ export default [{
   input: entry,
   name: moduleName,
   output: {
-    file: 'lib/index.js',
-    format: 'umd',
-    exports: 'named',
+    file: 'es/index.js',
+    format: 'es',
     sourcemap: false
   },
   plugins: [
@@ -36,7 +35,6 @@ export default [{
   output: {
     file: 'lib/index.min.js',
     format: 'umd',
-    exports: 'named',
     sourcemap: false
   },
   plugins: [
