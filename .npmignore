@@ -6,3 +6,4 @@ node_modules/
 /public
 *yarn*
 *.log*
+Ls-Webpack-Plugin.js
