@@ -24,7 +24,7 @@
 - 6、增加内联js抛异常时的调用栈文件路径指向问题
 
 ```javascript
-
+// 引入 lib/index.min.js
 Pawn.add([
       //添加url为数组，即增加多cdn，多路切换，因为存在阿里cdn下载失败时，可以直接切换七牛cdn下载，需要注意我只会重试3次下载。
       {"url":['https://acdnbase.com/se/static/js/servi.js',"https://cdn.bootcss.com/jquery/3.3.1/jquery.js"],"key":'kuayujs'},//跨域js和不跨域的jquery
